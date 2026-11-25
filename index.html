@@ -17,8 +17,7 @@
                     colors: {
                         bg: '#050508', surface: '#0d0d12', card: '#12121a', border: '#1a1a25',
                         accent: '#00d4ff', accentDark: '#0099cc', secondary: '#00ff88',
-                        muted: '#a1a1aa', // Warna teks sudah dipercerah
-                        fg: '#f0f0f5',
+                        muted: '#a1a1aa', fg: '#f0f0f5',
                     }
                 }
             }
@@ -37,8 +36,7 @@
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3); }
         .btn-secondary { background: transparent; color: #00d4ff; border: 1px solid #00d4ff; padding: 12px 28px; border-radius: 8px; transition: all 0.3s ease; text-decoration: none; display: inline-block; cursor: pointer; }
         .btn-secondary:hover { background: rgba(0, 212, 255, 0.1); }
-        /* Card dijadikan block dan remove underline untuk anchor */
-        .card { background: rgba(18, 18, 26, 0.8); backdrop-filter: blur(10px); border: 1px solid #1a1a25; border-radius: 16px; transition: all 0.3s ease; display: block; text-decoration: none; color: inherit; }
+        .card { background: rgba(18, 18, 26, 0.8); backdrop-filter: blur(10px); border: 1px solid #1a1a25; border-radius: 16px; transition: all 0.3s ease; display: block; text-decoration: none; color: inherit; position: relative; }
         .card:hover { border-color: #00d4ff; transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1); }
         .profile-image { width: 280px; height: 280px; border-radius: 50%; border: 4px solid #00d4ff; object-fit: cover; box-shadow: 0 0 40px rgba(0, 212, 255, 0.4); }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
@@ -55,8 +53,13 @@
         .gallery-item { position: relative; overflow: hidden; border-radius: 12px; cursor: pointer; }
         .gallery-item img { width: 100%; height: 200px; object-fit: cover; transition: transform 0.5s; }
         .gallery-item:hover img { transform: scale(1.1); }
-        .delete-btn { position: absolute; top: 8px; right: 8px; background: #ff4757; border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 5; }
+        .delete-btn { position: absolute; top: 8px; right: 8px; background: #ff4757; border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 5; font-size: 16px; }
         .admin-mode .delete-btn { display: flex; }
+        /* Tab Styles */
+        .tab-btn { padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid #1a1a25; font-size: 14px; font-weight: 500; }
+        .tab-btn.active { background: #00d4ff; color: #050508; border-color: #00d4ff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
@@ -92,9 +95,7 @@
                 </div>
                 <div class="flex justify-center js-reveal">
                     <div class="floating">
-                         <img src="https://z-cdn-media.chatglm.cn/files/53750852-a64c-4dc8-a3fe-bf73c593b6e9.png?auth_key=1879192724-e756bfcea6974261ac6a8c489ea84540-0-0e39e7223d7d851026f8dd413460f9e9" 
-                             alt="Winstar Santiago" 
-                             class="profile-image">
+                         <img src="https://z-cdn-media.chatglm.cn/files/53750852-a64c-4dc8-a3fe-bf73c593b6e9.png?auth_key=1879192724-e756bfcea6974261ac6a8c489ea84540-0-0e39e7223d7d851026f8dd413460f9e9" alt="Winstar Santiago" class="profile-image">
                     </div>
                 </div>
             </div>
@@ -174,7 +175,7 @@
         <section id="achievements" class="py-20 px-6 bg-surface/30">
             <div class="max-w-6xl mx-auto">
                 <h2 class="text-4xl font-bold mb-4 text-center js-reveal">Prestasi & <span class="text-gradient">Sertifikat</span></h2>
-                <p class="text-center text-muted mb-8 js-reveal">Klik tombol gear di kanan bawah untuk menambah sertifikat baru (Admin Only)</p>
+                <p class="text-center text-muted mb-8 js-reveal">Klik tombol gear di kanan bawah untuk menambah sertifikat/project baru (Admin Only)</p>
                 <div class="flex flex-wrap justify-center gap-3 mb-8 js-reveal">
                     <button class="filter-btn px-4 py-2 rounded-full border border-border text-sm hover:bg-accent hover:text-bg transition-all active" data-filter="all">Semua</button>
                     <button class="filter-btn px-4 py-2 rounded-full border border-border text-sm hover:bg-accent hover:text-bg transition-all" data-filter="lomba">Lomba</button>
@@ -233,16 +234,64 @@
 
     <div id="login-modal" class="modal-overlay"><div class="card p-8 w-full max-w-sm relative"><h3 class="text-xl font-bold mb-6 text-center text-accent">Admin Login</h3><form id="login-form"><input type="password" id="password-input" class="input-field" placeholder="Password Admin" required><button type="submit" class="btn-primary w-full mt-4">Masuk</button></form><p class="text-xs text-center text-muted mt-4">Password: winstar2024</p><button id="close-login" class="absolute top-4 right-4 text-muted hover:text-white">&times;</button></div></div>
 
-    <div id="admin-modal" class="modal-overlay"><div class="card p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto"><h3 class="text-xl font-bold mb-6 text-accent">Kelola Sertifikat</h3><div class="bg-surface p-4 rounded-lg mb-6"><h4 class="font-bold mb-4 text-sm">Tambah Baru</h4><input type="text" id="add-title" class="input-field" placeholder="Judul Sertifikat"><select id="add-category" class="input-field"><option value="lomba">Lomba</option><option value="kepanitiaan">Kepanitiaan</option><option value="seminar">Seminar</option><option value="akademik">Akademik</option></select><input type="text" id="add-image" class="input-field" placeholder="URL Gambar (https://...)"><button id="add-btn" class="btn-primary w-full text-sm">Tambah</button></div><div id="admin-list" class="space-y-2"></div><div class="mt-6 flex gap-4"><button id="logout-btn" class="btn-secondary flex-1">Logout</button><button id="close-admin" class="btn-primary flex-1">Tutup</button></div></div></div>
+    <!-- Admin Panel Modal dengan Tabs -->
+    <div id="admin-modal" class="modal-overlay">
+        <div class="card p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold mb-6 text-accent">Panel Admin</h3>
+            
+            <!-- Tab Switcher -->
+            <div class="flex gap-2 mb-6">
+                <button class="tab-btn active" data-tab="certs">Sertifikat</button>
+                <button class="tab-btn" data-tab="projects">Projects</button>
+            </div>
+
+            <!-- Tab Content: Sertifikat -->
+            <div class="tab-content active" id="tab-certs">
+                <div class="bg-surface p-4 rounded-lg mb-6">
+                    <h4 class="font-bold mb-4 text-sm">Tambah Sertifikat</h4>
+                    <input type="text" id="add-title" class="input-field" placeholder="Judul Sertifikat">
+                    <select id="add-category" class="input-field">
+                        <option value="lomba">Lomba</option>
+                        <option value="kepanitiaan">Kepanitiaan</option>
+                        <option value="seminar">Seminar</option>
+                        <option value="akademik">Akademik</option>
+                    </select>
+                    <input type="text" id="add-image" class="input-field" placeholder="URL Gambar (https://...)">
+                    <button id="add-btn" class="btn-primary w-full text-sm">Tambah Sertifikat</button>
+                </div>
+                <div id="admin-list" class="space-y-2"></div>
+            </div>
+
+            <!-- Tab Content: Projects -->
+            <div class="tab-content" id="tab-projects">
+                <div class="bg-surface p-4 rounded-lg mb-6">
+                    <h4 class="font-bold mb-4 text-sm">Tambah Project</h4>
+                    <input type="text" id="add-proj-title" class="input-field" placeholder="Judul Project">
+                    <input type="text" id="add-proj-desc" class="input-field" placeholder="Deskripsi singkat">
+                    <input type="text" id="add-proj-tech" class="input-field" placeholder="Teknologi (pisahkan koma: HTML, JS, CSS)">
+                    <input type="text" id="add-proj-img" class="input-field" placeholder="URL Gambar Project">
+                    <input type="text" id="add-proj-link" class="input-field" placeholder="Link Project (https://...)">
+                    <button id="add-proj-btn" class="btn-primary w-full text-sm">Tambah Project</button>
+                </div>
+                <div id="admin-proj-list" class="space-y-2"></div>
+            </div>
+
+            <div class="mt-6 flex gap-4">
+                <button id="logout-btn" class="btn-secondary flex-1">Logout</button>
+                <button id="close-admin" class="btn-primary flex-1">Tutup</button>
+            </div>
+        </div>
+    </div>
     
     <div id="view-modal" class="modal-overlay"><div class="relative max-w-4xl w-full p-4"><img id="view-image" src="" alt="" class="w-full rounded-lg shadow-2xl"><p id="view-caption" class="text-center mt-4 text-muted"></p><button id="close-view" class="absolute top-0 right-0 m-2 bg-black/50 rounded-full p-2 text-white">&times;</button></div></div>
 
     <script>
         const ADMIN_PASSWORD = "winstar2024";
-        const STORAGE_KEY = "winstar_portfolio_data";
+        const STORAGE_KEY_CERTS = "winstar_portfolio_certs";
+        const STORAGE_KEY_PROJECTS = "winstar_portfolio_projects";
         
-        // DATA PROJECT
-        const projects = [
+        // Default Projects
+        const defaultProjects = [
             { id: 1, title: "Random Number Guesser", desc: "Game tebak angka dengan petunjuk", tech: ["HTML", "JS"], img: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=500", link: "https://github.com/winstar39" },
             { id: 2, title: "Reaction Tester", desc: "Uji kecepatan reaksi dalam milidetik", tech: ["JS", "CSS"], img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500", link: "https://github.com/winstar39" },
             { id: 3, title: "Booking Badminton", desc: "Website reservasi lapangan online", tech: ["HTML", "PHP"], img: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=500", link: "https://github.com/winstar39" },
@@ -262,6 +311,7 @@
         ];
 
         let certificates = [];
+        let projects = [];
         let isAdmin = false;
 
         const body = document.body;
@@ -278,16 +328,28 @@
             initFilters();
         });
 
+        // ================= DATA MANAGEMENT =================
         function loadData() {
             try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) { certificates = JSON.parse(stored); } 
-                else { certificates = [...defaultCerts]; saveData(); }
-            } catch (e) { certificates = [...defaultCerts]; }
+                // Load Certificates
+                const storedCerts = localStorage.getItem(STORAGE_KEY_CERTS);
+                certificates = storedCerts ? JSON.parse(storedCerts) : [...defaultCerts];
+                if (!storedCerts) saveCerts();
+
+                // Load Projects
+                const storedProjs = localStorage.getItem(STORAGE_KEY_PROJECTS);
+                projects = storedProjs ? JSON.parse(storedProjs) : [...defaultProjects];
+                if (!storedProjs) saveProjects();
+            } catch (e) { 
+                certificates = [...defaultCerts]; 
+                projects = [...defaultProjects];
+            }
         }
 
-        function saveData() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(certificates)); } catch (e) {} }
+        function saveCerts() { try { localStorage.setItem(STORAGE_KEY_CERTS, JSON.stringify(certificates)); } catch (e) {} }
+        function saveProjects() { try { localStorage.setItem(STORAGE_KEY_PROJECTS, JSON.stringify(projects)); } catch (e) {} }
 
+        // ================= PARTICLES =================
         function initParticles() {
             let w = canvas.width = window.innerWidth;
             let h = canvas.height = window.innerHeight;
@@ -306,22 +368,69 @@
             window.addEventListener('resize', () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; });
         }
 
+        // ================= RENDER PROJECTS =================
         function renderProjects() {
             const container = document.getElementById('projects-container');
+            if (projects.length === 0) {
+                container.innerHTML = `<div class="col-span-3 text-center text-muted py-12">Belum ada project.</div>`;
+                return;
+            }
             container.innerHTML = projects.map(p => `
-                <a href="${p.link}" target="_blank" class="card overflow-hidden js-reveal">
+                <a href="${p.link}" target="_blank" class="card overflow-hidden js-reveal relative">
+                    ${isAdmin ? `<button class="delete-btn" onclick="event.preventDefault(); event.stopPropagation(); deleteProject(${p.id})">&times;</button>` : ''}
                     <img src="${p.img}" alt="${p.title}" class="w-full h-40 object-cover">
                     <div class="p-5">
                         <h3 class="font-bold text-lg mb-2">${p.title}</h3>
                         <p class="text-muted text-sm mb-4">${p.desc}</p>
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 flex-wrap">
                             ${p.tech.map(t => `<span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent">${t}</span>`).join('')}
                         </div>
                     </div>
                 </a>
             `).join('');
+            initObserver();
         }
 
+        function renderAdminProjList() {
+            const list = document.getElementById('admin-proj-list');
+            if (projects.length === 0) {
+                list.innerHTML = '<p class="text-muted text-sm">Belum ada project.</p>';
+                return;
+            }
+            list.innerHTML = projects.map(p => `
+                <div class="flex justify-between items-center bg-surface p-3 rounded">
+                    <div><span class="text-sm font-medium">${p.title}</span><span class="text-xs text-muted block">${p.tech.join(', ')}</span></div>
+                    <button onclick="deleteProject(${p.id})" class="text-red-500 text-sm hover:underline">Hapus</button>
+                </div>
+            `).join('');
+        }
+
+        function addProject(title, desc, techStr, img, link) {
+            const techArray = techStr.split(',').map(t => t.trim()).filter(t => t);
+            projects.push({
+                id: Date.now(),
+                title: title,
+                desc: desc,
+                tech: techArray,
+                img: img,
+                link: link || '#'
+            });
+            saveProjects();
+            renderProjects();
+            renderAdminProjList();
+        }
+
+        function deleteProject(id) {
+            if(confirm('Hapus project ini?')) {
+                projects = projects.filter(p => p.id !== id);
+                saveProjects();
+                renderProjects();
+                renderAdminProjList();
+                showToast('Project dihapus');
+            }
+        }
+
+        // ================= RENDER CERTIFICATES =================
         function renderGallery() {
             const container = document.getElementById('gallery-container');
             if (certificates.length === 0) {
@@ -351,28 +460,13 @@
             `).join('');
         }
 
+        // ================= OBSERVER & FILTERS =================
         function initObserver() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => { if(entry.isIntersecting) { entry.target.classList.add('active'); } });
             }, { threshold: 0.1 });
             document.querySelectorAll('.js-reveal').forEach(el => { observer.observe(el); });
             document.querySelectorAll('.progress-fill').forEach(bar => { const width = bar.dataset.width; setTimeout(() => { bar.style.width = width + '%'; }, 500); });
-        }
-
-        function initEvents() {
-            document.getElementById('admin-btn').addEventListener('click', () => { if(isAdmin) { openModal('admin-modal'); renderAdminList(); } else { openModal('login-modal'); } });
-            document.getElementById('login-form').addEventListener('submit', (e) => {
-                e.preventDefault(); const pass = document.getElementById('password-input').value;
-                if(pass === ADMIN_PASSWORD) { isAdmin = true; body.classList.add('admin-mode'); closeModal('login-modal'); openModal('admin-modal'); renderAdminList(); showToast('Login berhasil!'); } else { showToast('Password salah!'); }
-            });
-            document.getElementById('add-btn').addEventListener('click', () => {
-                const title = document.getElementById('add-title').value; const cat = document.getElementById('add-category').value; const img = document.getElementById('add-image').value;
-                if(title && img) { certificates.push({ id: Date.now(), title: title, category: cat, img: img }); saveData(); renderGallery(); renderAdminList(); document.getElementById('add-title').value = ''; document.getElementById('add-image').value = ''; showToast('Sertifikat ditambahkan!'); } else { showToast('Isi semua field!'); }
-            });
-            document.querySelectorAll('[id^="close-"]').forEach(btn => { btn.addEventListener('click', () => { const modalId = btn.id.replace('close-', '') + '-modal'; closeModal(modalId); }); });
-            document.getElementById('logout-btn').addEventListener('click', () => { isAdmin = false; body.classList.remove('admin-mode'); closeModal('admin-modal'); showToast('Logout berhasil'); });
-            document.getElementById('contact-form').addEventListener('submit', (e) => { e.preventDefault(); showToast('Pesan terkirim!'); e.target.reset(); });
-            document.querySelectorAll('.modal-overlay').forEach(modal => { modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(modal.id); }); });
         }
 
         function initFilters() {
@@ -386,13 +480,124 @@
             });
         }
 
+        // ================= EVENTS =================
+        function initEvents() {
+            // Admin Button
+            document.getElementById('admin-btn').addEventListener('click', () => {
+                if(isAdmin) { openModal('admin-modal'); renderAdminList(); renderAdminProjList(); }
+                else openModal('login-modal');
+            });
+
+            // Login
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const pass = document.getElementById('password-input').value;
+                if(pass === ADMIN_PASSWORD) {
+                    isAdmin = true;
+                    body.classList.add('admin-mode');
+                    closeModal('login-modal');
+                    openModal('admin-modal');
+                    renderAdminList();
+                    renderAdminProjList();
+                    renderProjects(); // Re-render to show delete buttons
+                    showToast('Login berhasil!');
+                } else { showToast('Password salah!'); }
+            });
+
+            // Add Certificate
+            document.getElementById('add-btn').addEventListener('click', () => {
+                const title = document.getElementById('add-title').value;
+                const cat = document.getElementById('add-category').value;
+                const img = document.getElementById('add-image').value;
+                if(title && img) {
+                    certificates.push({ id: Date.now(), title: title, category: cat, img: img });
+                    saveCerts(); renderGallery(); renderAdminList();
+                    document.getElementById('add-title').value = '';
+                    document.getElementById('add-image').value = '';
+                    showToast('Sertifikat ditambahkan!');
+                } else { showToast('Isi semua field!'); }
+            });
+
+            // Add Project
+            document.getElementById('add-proj-btn').addEventListener('click', () => {
+                const title = document.getElementById('add-proj-title').value;
+                const desc = document.getElementById('add-proj-desc').value;
+                const tech = document.getElementById('add-proj-tech').value;
+                const img = document.getElementById('add-proj-img').value;
+                const link = document.getElementById('add-proj-link').value;
+                if(title && desc && img) {
+                    addProject(title, desc, tech, img, link);
+                    document.getElementById('add-proj-title').value = '';
+                    document.getElementById('add-proj-desc').value = '';
+                    document.getElementById('add-proj-tech').value = '';
+                    document.getElementById('add-proj-img').value = '';
+                    document.getElementById('add-proj-link').value = '';
+                    showToast('Project ditambahkan!');
+                } else { showToast('Isi judul, deskripsi, dan gambar!'); }
+            });
+
+            // Tab Switcher
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+                });
+            });
+
+            // Close Buttons
+            document.querySelectorAll('[id^="close-"]').forEach(btn => {
+                btn.addEventListener('click', () => closeModal(btn.id.replace('close-', '') + '-modal'));
+            });
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                isAdmin = false;
+                body.classList.remove('admin-mode');
+                closeModal('admin-modal');
+                renderProjects(); // Re-render to hide delete buttons
+                showToast('Logout berhasil');
+            });
+
+            // Contact Form
+            document.getElementById('contact-form').addEventListener('submit', (e) => {
+                e.preventDefault(); showToast('Pesan terkirim!'); e.target.reset();
+            });
+
+            // Click outside modal
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', e => { if(e.target === modal) closeModal(modal.id); });
+            });
+        }
+
+        // ================= HELPERS =================
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        window.viewImage = function(src, title) { document.getElementById('view-image').src = src; document.getElementById('view-caption').innerText = title; openModal('view-modal'); }
-        window.deleteCert = function(id) { if(confirm('Hapus sertifikat ini?')) { certificates = certificates.filter(c => c.id !== id); saveData(); renderGallery(); if(isAdmin) renderAdminList(); showToast('Dihapus'); } }
+        window.viewImage = function(src, title) {
+            document.getElementById('view-image').src = src;
+            document.getElementById('view-caption').innerText = title;
+            openModal('view-modal');
+        }
 
-        function showToast(msg) { const toast = document.createElement('div'); toast.className = 'fixed bottom-24 right-5 bg-accent text-bg px-4 py-2 rounded shadow-lg z-50 text-sm font-bold'; toast.innerText = msg; document.body.appendChild(toast); setTimeout(() => toast.remove(), 2000); }
+        window.deleteCert = function(id) {
+            if(confirm('Hapus sertifikat ini?')) {
+                certificates = certificates.filter(c => c.id !== id);
+                saveCerts(); renderGallery(); renderAdminList();
+                showToast('Dihapus');
+            }
+        }
+
+        window.deleteProject = function(id) { deleteProject(id); }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-24 right-5 bg-accent text-bg px-4 py-2 rounded shadow-lg z-50 text-sm font-bold';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
     </script>
 </body>
 </html>
