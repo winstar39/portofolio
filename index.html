@@ -53,9 +53,20 @@
         .gallery-item { position: relative; overflow: hidden; border-radius: 12px; cursor: pointer; }
         .gallery-item img { width: 100%; height: 200px; object-fit: cover; transition: transform 0.5s; }
         .gallery-item:hover img { transform: scale(1.1); }
-        .delete-btn { position: absolute; top: 8px; right: 8px; background: #ff4757; border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 5; font-size: 16px; }
+        
+        /* PERBAIKAN: Tombol hapus sekarang di luar tag <a>, jadi tidak terhalang */
+        .delete-btn { 
+            position: absolute; top: 8px; right: 8px; background: #ff4757; 
+            border: none; color: white; width: 30px; height: 30px; border-radius: 50%; 
+            cursor: pointer; display: none; align-items: center; justify-content: center; 
+            z-index: 10; font-size: 16px; line-height: 1;
+        }
         .admin-mode .delete-btn { display: flex; }
-        /* Tab Styles */
+        .delete-btn:hover { background: #ff2d3f; transform: scale(1.1); }
+        
+        /* Wrapper untuk project card */
+        .project-wrapper { position: relative; }
+        
         .tab-btn { padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s; background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid #1a1a25; font-size: 14px; font-weight: 500; }
         .tab-btn.active { background: #00d4ff; color: #050508; border-color: #00d4ff; }
         .tab-content { display: none; }
@@ -290,19 +301,11 @@
         const STORAGE_KEY_CERTS = "winstar_portfolio_certs";
         const STORAGE_KEY_PROJECTS = "winstar_portfolio_projects";
         
-        // Default Projects
         const defaultProjects = [
             { id: 1, title: "Random Number Guesser", desc: "Game tebak angka dengan petunjuk", tech: ["HTML", "JS"], img: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=500", link: "https://github.com/winstar39" },
             { id: 2, title: "Reaction Tester", desc: "Uji kecepatan reaksi dalam milidetik", tech: ["JS", "CSS"], img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500", link: "https://github.com/winstar39" },
             { id: 3, title: "Booking Badminton", desc: "Website reservasi lapangan online", tech: ["HTML", "PHP"], img: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=500", link: "https://github.com/winstar39" },
-            { 
-                id: 4, 
-                title: "Analisis Pancasila", 
-                desc: "Mitigasi Plagiarisme Digital Melalui Internalisasi Nilai Pancasila Sila Ke-2", 
-                tech: ["Docs", "Analysis"], 
-                img: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=500", 
-                link: "https://kelompok2agama5.wordpress.com/2026/05/20/portofolio/"
-            }
+            { id: 4, title: "Analisis Pancasila", desc: "Mitigasi Plagiarisme Digital Melalui Internalisasi Nilai Pancasila Sila Ke-2", tech: ["Docs", "Analysis"], img: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=500", link: "https://kelompok2agama5.wordpress.com/2026/05/20/portofolio/" }
         ];
 
         const defaultCerts = [
@@ -331,12 +334,10 @@
         // ================= DATA MANAGEMENT =================
         function loadData() {
             try {
-                // Load Certificates
                 const storedCerts = localStorage.getItem(STORAGE_KEY_CERTS);
                 certificates = storedCerts ? JSON.parse(storedCerts) : [...defaultCerts];
                 if (!storedCerts) saveCerts();
 
-                // Load Projects
                 const storedProjs = localStorage.getItem(STORAGE_KEY_PROJECTS);
                 projects = storedProjs ? JSON.parse(storedProjs) : [...defaultProjects];
                 if (!storedProjs) saveProjects();
@@ -369,6 +370,7 @@
         }
 
         // ================= RENDER PROJECTS =================
+        // PERBAIKAN: Tombol hapus ditempatkan di LUAR tag <a> sebagai sibling
         function renderProjects() {
             const container = document.getElementById('projects-container');
             if (projects.length === 0) {
@@ -376,18 +378,31 @@
                 return;
             }
             container.innerHTML = projects.map(p => `
-                <a href="${p.link}" target="_blank" class="card overflow-hidden js-reveal relative">
-                    ${isAdmin ? `<button class="delete-btn" onclick="event.preventDefault(); event.stopPropagation(); deleteProject(${p.id})">&times;</button>` : ''}
-                    <img src="${p.img}" alt="${p.title}" class="w-full h-40 object-cover">
-                    <div class="p-5">
-                        <h3 class="font-bold text-lg mb-2">${p.title}</h3>
-                        <p class="text-muted text-sm mb-4">${p.desc}</p>
-                        <div class="flex gap-2 flex-wrap">
-                            ${p.tech.map(t => `<span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent">${t}</span>`).join('')}
+                <div class="project-wrapper js-reveal">
+                    <button class="delete-btn proj-del-btn" data-id="${p.id}" title="Hapus Project">&times;</button>
+                    <a href="${p.link}" target="_blank" class="card overflow-hidden block">
+                        <img src="${p.img}" alt="${p.title}" class="w-full h-40 object-cover">
+                        <div class="p-5">
+                            <h3 class="font-bold text-lg mb-2">${p.title}</h3>
+                            <p class="text-muted text-sm mb-4">${p.desc}</p>
+                            <div class="flex gap-2 flex-wrap">
+                                ${p.tech.map(t => `<span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent">${t}</span>`).join('')}
+                            </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
             `).join('');
+            
+            // PERBAIKAN: Gunakan addEventListener, bukan inline onclick
+            document.querySelectorAll('.proj-del-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const id = parseInt(this.dataset.id);
+                    deleteProject(id);
+                });
+            });
+            
             initObserver();
         }
 
@@ -400,9 +415,17 @@
             list.innerHTML = projects.map(p => `
                 <div class="flex justify-between items-center bg-surface p-3 rounded">
                     <div><span class="text-sm font-medium">${p.title}</span><span class="text-xs text-muted block">${p.tech.join(', ')}</span></div>
-                    <button onclick="deleteProject(${p.id})" class="text-red-500 text-sm hover:underline">Hapus</button>
+                    <button class="proj-admin-del-btn text-red-500 text-sm hover:underline" data-id="${p.id}">Hapus</button>
                 </div>
             `).join('');
+            
+            // Attach listeners for admin list delete buttons
+            document.querySelectorAll('.proj-admin-del-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.dataset.id);
+                    deleteProject(id);
+                });
+            });
         }
 
         function addProject(title, desc, techStr, img, link) {
@@ -437,8 +460,8 @@
                 container.innerHTML = `<div class="col-span-4 text-center text-muted py-12 js-reveal">Belum ada sertifikat.</div>`;
             } else {
                 container.innerHTML = certificates.map(c => `
-                    <div class="gallery-item card js-reveal" data-category="${c.category}" onclick="viewImage('${c.img}', '${c.title}')">
-                        <button class="delete-btn" onclick="event.stopPropagation(); deleteCert(${c.id})">&times;</button>
+                    <div class="gallery-item card js-reveal" data-category="${c.category}" data-cert-id="${c.id}">
+                        <button class="delete-btn cert-del-btn" data-id="${c.id}" title="Hapus Sertifikat">&times;</button>
                         <img src="${c.img}" alt="${c.title}">
                         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                             <p class="text-sm font-medium">${c.title}</p>
@@ -447,6 +470,27 @@
                     </div>
                 `).join('');
             }
+            
+            // PERBAIKAN: Gunakan addEventListener untuk sertifikat juga
+            document.querySelectorAll('.cert-del-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const id = parseInt(this.dataset.id);
+                    deleteCert(id);
+                });
+            });
+            
+            // Click to view image (hanya jika bukan admin mode, atau tetap bisa view)
+            document.querySelectorAll('.gallery-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (e.target.closest('.delete-btn')) return; // Jangan view jika klik delete
+                    const img = this.querySelector('img').src;
+                    const title = this.querySelector('.text-sm').textContent;
+                    viewImage(img, title);
+                });
+            });
+            
             initObserver();
         }
 
@@ -455,9 +499,16 @@
             list.innerHTML = certificates.map(c => `
                 <div class="flex justify-between items-center bg-surface p-3 rounded">
                     <div><span class="text-sm font-medium">${c.title}</span><span class="text-xs text-muted block capitalize">${c.category}</span></div>
-                    <button onclick="deleteCert(${c.id})" class="text-red-500 text-sm hover:underline">Hapus</button>
+                    <button class="cert-admin-del-btn text-red-500 text-sm hover:underline" data-id="${c.id}">Hapus</button>
                 </div>
             `).join('');
+            
+            document.querySelectorAll('.cert-admin-del-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.dataset.id);
+                    deleteCert(id);
+                });
+            });
         }
 
         // ================= OBSERVER & FILTERS =================
@@ -482,13 +533,11 @@
 
         // ================= EVENTS =================
         function initEvents() {
-            // Admin Button
             document.getElementById('admin-btn').addEventListener('click', () => {
                 if(isAdmin) { openModal('admin-modal'); renderAdminList(); renderAdminProjList(); }
                 else openModal('login-modal');
             });
 
-            // Login
             document.getElementById('login-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const pass = document.getElementById('password-input').value;
@@ -499,12 +548,12 @@
                     openModal('admin-modal');
                     renderAdminList();
                     renderAdminProjList();
-                    renderProjects(); // Re-render to show delete buttons
+                    renderProjects();
+                    renderGallery();
                     showToast('Login berhasil!');
                 } else { showToast('Password salah!'); }
             });
 
-            // Add Certificate
             document.getElementById('add-btn').addEventListener('click', () => {
                 const title = document.getElementById('add-title').value;
                 const cat = document.getElementById('add-category').value;
@@ -518,7 +567,6 @@
                 } else { showToast('Isi semua field!'); }
             });
 
-            // Add Project
             document.getElementById('add-proj-btn').addEventListener('click', () => {
                 const title = document.getElementById('add-proj-title').value;
                 const desc = document.getElementById('add-proj-desc').value;
@@ -536,7 +584,6 @@
                 } else { showToast('Isi judul, deskripsi, dan gambar!'); }
             });
 
-            // Tab Switcher
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -546,26 +593,23 @@
                 });
             });
 
-            // Close Buttons
             document.querySelectorAll('[id^="close-"]').forEach(btn => {
                 btn.addEventListener('click', () => closeModal(btn.id.replace('close-', '') + '-modal'));
             });
 
-            // Logout
             document.getElementById('logout-btn').addEventListener('click', () => {
                 isAdmin = false;
                 body.classList.remove('admin-mode');
                 closeModal('admin-modal');
-                renderProjects(); // Re-render to hide delete buttons
+                renderProjects();
+                renderGallery();
                 showToast('Logout berhasil');
             });
 
-            // Contact Form
             document.getElementById('contact-form').addEventListener('submit', (e) => {
                 e.preventDefault(); showToast('Pesan terkirim!'); e.target.reset();
             });
 
-            // Click outside modal
             document.querySelectorAll('.modal-overlay').forEach(modal => {
                 modal.addEventListener('click', e => { if(e.target === modal) closeModal(modal.id); });
             });
@@ -575,21 +619,19 @@
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        window.viewImage = function(src, title) {
+        function viewImage(src, title) {
             document.getElementById('view-image').src = src;
             document.getElementById('view-caption').innerText = title;
             openModal('view-modal');
         }
 
-        window.deleteCert = function(id) {
+        function deleteCert(id) {
             if(confirm('Hapus sertifikat ini?')) {
                 certificates = certificates.filter(c => c.id !== id);
                 saveCerts(); renderGallery(); renderAdminList();
-                showToast('Dihapus');
+                showToast('Sertifikat dihapus');
             }
         }
-
-        window.deleteProject = function(id) { deleteProject(id); }
 
         function showToast(msg) {
             const toast = document.createElement('div');
